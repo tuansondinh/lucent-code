@@ -19,7 +19,7 @@ const emptyResult: DiscoveryResult = {
     claudeSkills: 0,
     claudePlugins: 0,
     totalItems: 0,
-    toolsScanned: 8,
+    toolsScanned: 9,
     toolsWithConfig: 0,
   },
   warnings: [],
@@ -77,7 +77,7 @@ const populatedResult: DiscoveryResult = {
     claudeSkills: 1,
     claudePlugins: 1,
     totalItems: 5,
-    toolsScanned: 8,
+    toolsScanned: 9,
     toolsWithConfig: 2,
   },
   warnings: [],
@@ -88,13 +88,13 @@ populatedResult.allItems = populatedResult.tools.flatMap((t) => t.items);
 describe("formatDiscoveryForTool", () => {
   test("formats empty result", () => {
     const text = formatDiscoveryForTool(emptyResult);
-    assert.ok(text.includes("0/8 tools with config"));
+    assert.ok(text.includes("0/9 tools with config"));
     assert.ok(text.includes("No configuration found"));
   });
 
   test("formats populated result with sections", () => {
     const text = formatDiscoveryForTool(populatedResult);
-    assert.ok(text.includes("2/8 tools with config"));
+    assert.ok(text.includes("2/9 tools with config"));
     assert.ok(text.includes("1 MCP server(s)"));
     assert.ok(text.includes("1 Claude skill(s)"));
     assert.ok(text.includes("1 Claude plugin(s)"));
@@ -111,14 +111,14 @@ describe("formatDiscoveryForCommand", () => {
   test("formats empty result", () => {
     const lines = formatDiscoveryForCommand(emptyResult);
     const text = lines.join("\n");
-    assert.ok(text.includes("0 of 8"));
+    assert.ok(text.includes("0 of 9"));
     assert.ok(text.includes("No configuration found"));
   });
 
   test("formats populated result as summary", () => {
     const lines = formatDiscoveryForCommand(populatedResult);
     const text = lines.join("\n");
-    assert.ok(text.includes("2 of 8"));
+    assert.ok(text.includes("2 of 9"));
     assert.ok(text.includes("Cursor"));
     assert.ok(text.includes("MCP: test-mcp"));
     assert.ok(text.includes("Skill: cursor-mdc-editor"));

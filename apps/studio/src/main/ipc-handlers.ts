@@ -612,7 +612,9 @@ export function registerIpcHandlers(
       }
 
       // 3. LLM classifier
-      const projectInstructions = await fs.readFile(join(pane.projectRoot, 'LUCENT.md'), 'utf8').catch(() => undefined)
+      const projectInstructions = await fs.readFile(join(pane.projectRoot, 'LUCENT.md'), 'utf8')
+        .catch(() => fs.readFile(join(pane.projectRoot, '.lucent', 'LUCENT.md'), 'utf8'))
+        .catch(() => undefined)
       const context = {
         userMessages: pane.orchestrator.getUserMessages().slice(-10),
         projectInstructions,

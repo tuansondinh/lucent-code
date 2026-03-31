@@ -57,4 +57,10 @@ export const TOOLS: ToolInfo[] = [
     userDir: null,
     projectDir: ".vscode",
   },
+  {
+    id: "lucent",
+    name: "Lucent Code",
+    userDir: ".lucent",
+    projectDir: ".lucent",
+  },
 ];

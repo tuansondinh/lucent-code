@@ -906,6 +906,28 @@ export default function App() {
       const isModalOpen = commandPaletteOpenRef.current || settingsOpenRef.current || modelPickerOpenRef.current
       const mobile = isMobileRef.current
 
+      // Cmd+Option+Arrow — spatial pane navigation (desktop only)
+      if (!mobile && e.metaKey && e.altKey) {
+        if (!isModalOpen) {
+          if (e.key === 'ArrowLeft')  { e.preventDefault(); handleNavigatePane('left');  return }
+          if (e.key === 'ArrowRight') { e.preventDefault(); handleNavigatePane('right'); return }
+          if (e.key === 'ArrowUp')    { e.preventDefault(); handleNavigatePane('up');    return }
+          if (e.key === 'ArrowDown')  { e.preventDefault(); handleNavigatePane('down');  return }
+        }
+      }
+
+      // Cmd+1-4 — focus pane by index (desktop only)
+      if (!mobile && e.metaKey && ['1', '2', '3', '4'].includes(e.key)) {
+        const idx = parseInt(e.key, 10) - 1
+        const ids = collectLeafIds(usePanesStore.getState().layout)
+        if (idx < ids.length) {
+          e.preventDefault()
+          focusPaneById(ids[idx])
+          focusPane(ids[idx])
+          return
+        }
+      }
+
       // Suppress app-level shortcuts when focus is inside a CodeMirror editor.
       // CM6 handles Cmd+F (search), Cmd+H (replace), Cmd+G (go-to-line), etc.
       // internally without propagation, but we add this guard for safety.
@@ -990,18 +1012,6 @@ export default function App() {
         return
       }
 
-      // Cmd+1-4 — focus pane by index (desktop only)
-      if (!mobile && e.metaKey && ['1', '2', '3', '4'].includes(e.key)) {
-        const idx = parseInt(e.key, 10) - 1
-        const ids = collectLeafIds(usePanesStore.getState().layout)
-        if (idx < ids.length) {
-          e.preventDefault()
-          focusPaneById(ids[idx])
-          focusPane(ids[idx])
-          return
-        }
-      }
-
       // Cmd+N — new session (always works, even in inputs)
       if (e.metaKey && !e.shiftKey && !e.altKey && !e.ctrlKey && e.code === 'KeyN') {
         if (!isModalOpen) {
@@ -1028,16 +1038,6 @@ export default function App() {
         e.preventDefault()
         cycleThinkingLevel()
         return
-      }
-
-      // Cmd+Option+Arrow — spatial pane navigation (desktop only)
-      if (!mobile && e.metaKey && e.altKey) {
-        if (!isModalOpen) {
-          if (e.key === 'ArrowLeft')  { e.preventDefault(); handleNavigatePane('left');  return }
-          if (e.key === 'ArrowRight') { e.preventDefault(); handleNavigatePane('right'); return }
-          if (e.key === 'ArrowUp')    { e.preventDefault(); handleNavigatePane('up');    return }
-          if (e.key === 'ArrowDown')  { e.preventDefault(); handleNavigatePane('down');  return }
-        }
       }
 
       // Don't capture remaining shortcuts when focus is in an input/textarea

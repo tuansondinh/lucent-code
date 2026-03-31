@@ -628,6 +628,51 @@ async function scanVSCode(projectRoot: string, _home: string, tool: ToolInfo): P
   return { items, warnings };
 }
 
+// ---------- Lucent Code ----------
+
+async function scanLucent(projectRoot: string, home: string, tool: ToolInfo): Promise<{ items: DiscoveredItem[]; warnings: string[] }> {
+  const items: DiscoveredItem[] = [];
+  const warnings: string[] = [];
+
+  // User-level context: ~/.lucent/LUCENT.md
+  const userLucentMd = join(home, ".lucent/LUCENT.md");
+  const userMdContent = await readTextFile(userLucentMd);
+  if (userMdContent) {
+    items.push({
+      type: "context-file",
+      name: "LUCENT.md (user)",
+      content: userMdContent,
+      source: source(tool, userLucentMd, "user"),
+    });
+  }
+
+  // Project-level context: LUCENT.md at project root
+  const projectLucentMd = join(projectRoot, "LUCENT.md");
+  const projectMdContent = await readTextFile(projectLucentMd);
+  if (projectMdContent) {
+    items.push({
+      type: "context-file",
+      name: "LUCENT.md",
+      content: projectMdContent,
+      source: source(tool, projectLucentMd, "project"),
+    });
+  }
+
+  // Project-level context: .lucent/LUCENT.md
+  const dotLucentMd = join(projectRoot, ".lucent/LUCENT.md");
+  const dotLucentContent = await readTextFile(dotLucentMd);
+  if (dotLucentContent) {
+    items.push({
+      type: "context-file",
+      name: ".lucent/LUCENT.md",
+      content: dotLucentContent,
+      source: source(tool, dotLucentMd, "project"),
+    });
+  }
+
+  return { items, warnings };
+}
+
 // ── Scanner registry ──────────────────────────────────────────────────────────
 
 export const SCANNERS: Record<ToolId, Scanner> = {
@@ -639,4 +684,5 @@ export const SCANNERS: Record<ToolId, Scanner> = {
   cline: scanCline,
   "github-copilot": scanGithubCopilot,
   vscode: scanVSCode,
+  lucent: scanLucent,
 };

@@ -31,7 +31,8 @@ export type ToolId =
   | "codex"
   | "cline"
   | "github-copilot"
-  | "vscode";
+  | "vscode"
+  | "lucent";
 
 export interface ToolInfo {
   id: ToolId;

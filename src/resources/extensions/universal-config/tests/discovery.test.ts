@@ -39,7 +39,7 @@ describe("discoverAllConfigs", () => {
     try {
       const result = await discoverAllConfigs(testRoot, testHome);
       assert.equal(result.summary.totalItems, 0);
-      assert.equal(result.summary.toolsScanned, 8);
+      assert.equal(result.summary.toolsScanned, 9);
       assert.equal(result.summary.toolsWithConfig, 0);
       assert.equal(result.summary.claudeSkills, 0);
       assert.equal(result.summary.claudePlugins, 0);

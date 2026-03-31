@@ -1,9 +1,9 @@
 /**
  * Universal Config Discovery Extension
  *
- * Auto-detects and displays configuration from 8 AI coding tools:
+ * Auto-detects and displays configuration from 9 AI coding tools:
  * Claude Code, Cursor, Windsurf, Gemini CLI, Codex, Cline,
- * GitHub Copilot, and VS Code.
+ * GitHub Copilot, VS Code, and Lucent Code.
  *
  * Discovers: MCP servers, rules/instructions, context files, and settings.
  *
@@ -32,8 +32,8 @@ export default function universalConfig(pi: ExtensionAPI) {
     description:
       "Scan for existing AI coding tool configurations in this project and the user's home directory. " +
       "Discovers MCP servers, rules, context files, settings, Claude skills, and Claude plugins from Claude Code, Cursor, Windsurf, " +
-      "Gemini CLI, Codex, Cline, GitHub Copilot, and VS Code. Read-only — never modifies config files.",
-    promptSnippet: "Discover existing AI tool configs (MCP servers, rules, context files, Claude skills/plugins) from 8 coding tools.",
+      "Gemini CLI, Codex, Cline, GitHub Copilot, VS Code, and Lucent Code. Read-only — never modifies config files.",
+    promptSnippet: "Discover existing AI tool configs (MCP servers, rules, context files, Claude skills/plugins) from 9 coding tools.",
     promptGuidelines: [
       "Use discover_configs when a user asks about their existing configuration, MCP servers, or when switching from another AI coding tool.",
       "The tool scans both user-level (~/) and project-level (./) config directories.",
@@ -43,7 +43,7 @@ export default function universalConfig(pi: ExtensionAPI) {
       tool: Type.Optional(
         Type.String({
           description:
-            "Filter to a specific tool: claude, cursor, windsurf, gemini, codex, cline, github-copilot, vscode. Omit to scan all.",
+            "Filter to a specific tool: claude, cursor, windsurf, gemini, codex, cline, github-copilot, vscode, lucent. Omit to scan all.",
         }),
       ),
       refresh: Type.Optional(
@@ -66,7 +66,7 @@ export default function universalConfig(pi: ExtensionAPI) {
         const filtered = result.tools.filter((t) => t.tool.id === toolId);
         if (filtered.length === 0) {
           return {
-            content: [{ type: "text", text: `No scanner found for tool "${params.tool}". Valid tools: claude, cursor, windsurf, gemini, codex, cline, github-copilot, vscode` }],
+            content: [{ type: "text", text: `No scanner found for tool "${params.tool}". Valid tools: claude, cursor, windsurf, gemini, codex, cline, github-copilot, vscode, lucent` }],
             isError: true,
             details: undefined as unknown,
           };

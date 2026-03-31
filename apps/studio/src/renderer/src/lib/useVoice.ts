@@ -220,6 +220,7 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
   const sidecarTokenRef = useRef<string | null>(null)
   const textOnlyModeRef = useRef(false) // Tracks active TTS-only sidecar/ws resources.
   const pendingTtsRequestsRef = useRef<Array<{ text: string; turnId: string; gen: number }>>([])
+  const pendingTranscriptPartsRef = useRef<string[]>([])
 
   // TTS sentence accumulation
   const ttsSentenceBufferRef = useRef('')
@@ -444,6 +445,7 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
     autoDeactivateAfterTurnRef.current = false
     ttsRequestedForTurnRef.current = false
     turnFinishedRef.current = false
+    pendingTranscriptPartsRef.current = []
     voiceStore.getState().setTtsPlaying(false)
     if (releaseTimerRef.current) {
       clearTimeout(releaseTimerRef.current)
@@ -467,6 +469,7 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
     const state = voiceStore.getState()
     if (!state.active || state.activePaneId !== _activePaneId) return
     pendingReleaseRef.current = false
+    pendingTranscriptPartsRef.current = []
     if (releaseTimerRef.current) {
       clearTimeout(releaseTimerRef.current)
       releaseTimerRef.current = null
@@ -575,17 +578,28 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
           case 'partial_transcript':
             voiceStore.getState().setPartialTranscript(msg.text as string)
             break
-          case 'transcript':
+          case 'transcript': {
+            const finalPart = typeof msg.text === 'string' ? msg.text.trim() : ''
             voiceStore.getState().setPartialTranscript('')
-            onTranscript(msg.text as string)
+
             if (pendingReleaseRef.current) {
+              if (finalPart) pendingTranscriptPartsRef.current.push(finalPart)
+              const combined = pendingTranscriptPartsRef.current.join(' ').replace(/\s+/g, ' ').trim()
               pendingReleaseRef.current = false
+              pendingTranscriptPartsRef.current = []
               if (releaseTimerRef.current) {
                 clearTimeout(releaseTimerRef.current)
                 releaseTimerRef.current = null
               }
+              if (combined) onTranscript(combined)
+              break
+            }
+
+            if (finalPart) {
+              onTranscript(finalPart)
             }
             break
+          }
           case 'tts_start':
             voiceStore.getState().setTtsPlaying(true)
             break
@@ -785,6 +799,8 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
 
     stopMic()
     state.setSpeaking(false)
+    const partial = state.partialTranscript.trim()
+    pendingTranscriptPartsRef.current = partial ? [partial] : []
     pendingReleaseRef.current = true
     turnFinishedRef.current = false
     ttsRequestedForTurnRef.current = false
@@ -797,6 +813,7 @@ export function useVoice({ onTranscript, activePaneId: _activePaneId, ttsEnabled
       clearTimeout(releaseTimerRef.current)
     }
     releaseTimerRef.current = setTimeout(() => {
+      pendingTranscriptPartsRef.current = []
       completePushToTalkRelease()
     }, 1500)
   }, [voiceStore, _activePaneId, stopMic, completePushToTalkRelease])

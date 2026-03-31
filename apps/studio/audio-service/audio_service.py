@@ -189,7 +189,7 @@ class AudioSession:
         await self._reset_continuation_timer(ws)
 
     async def _reset_continuation_timer(self, ws: WebSocket) -> None:
-        """Cancel any existing deadline task and start a fresh 1-second one."""
+        """Cancel any existing deadline task and start a fresh 1.5-second one."""
         if self._continuation_task and not self._continuation_task.done():
             self._continuation_task.cancel()
         self._continuation_task = asyncio.create_task(
@@ -197,9 +197,9 @@ class AudioSession:
         )
 
     async def _continuation_deadline_task(self, ws: WebSocket) -> None:
-        """Wait 1 second then flush accumulated segments as a final transcript."""
+        """Wait 1.5 seconds then flush accumulated segments as a final transcript."""
         try:
-            await asyncio.sleep(1.0)
+            await asyncio.sleep(1.5)
             await self._flush_pending_segments(ws)
         except asyncio.CancelledError:
             pass

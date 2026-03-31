@@ -55,9 +55,12 @@ function resolvePromptInput(input: string | undefined, description: string): str
 }
 
 function loadContextFileFromDir(dir: string): { path: string; content: string } | null {
-	const candidates = ["AGENTS.md", "CLAUDE.md"];
-	for (const filename of candidates) {
-		const filePath = join(dir, filename);
+	const candidates = [
+		join(dir, "LUCENT.md"),
+		join(dir, ".lucent", "LUCENT.md"),
+		join(dir, CONFIG_DIR_NAME, "LUCENT.md"),
+	];
+	for (const filePath of candidates) {
 		if (existsSync(filePath)) {
 			try {
 				return {
@@ -81,7 +84,19 @@ function loadProjectContextFiles(
 	const contextFiles: Array<{ path: string; content: string }> = [];
 	const seenPaths = new Set<string>();
 
-	const globalContext = loadContextFileFromDir(resolvedAgentDir);
+	const appRootDir = resolve(resolvedAgentDir, "..");
+	const appRootLucentMd = join(appRootDir, "LUCENT.md");
+	let globalContext: { path: string; content: string } | null = null;
+	if (existsSync(appRootLucentMd)) {
+		try {
+			globalContext = { path: appRootLucentMd, content: readFileSync(appRootLucentMd, "utf-8") };
+		} catch (error) {
+			console.error(chalk.yellow(`Warning: Could not read ${appRootLucentMd}: ${error}`));
+		}
+	}
+	if (!globalContext) {
+		globalContext = loadContextFileFromDir(resolvedAgentDir);
+	}
 	if (globalContext) {
 		contextFiles.push(globalContext);
 		seenPaths.add(globalContext.path);

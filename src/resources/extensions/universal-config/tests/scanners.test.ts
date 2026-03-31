@@ -398,6 +398,87 @@ describe("GitHub Copilot scanner", () => {
   });
 });
 
+// ── Lucent Code ───────────────────────────────────────────────────────────────
+
+describe("Lucent Code scanner", () => {
+  test("discovers LUCENT.md from user dir", async () => {
+    const { testRoot, testHome, cleanup } = makeTempDirs();
+    try {
+      writeText(join(testHome, ".lucent/LUCENT.md"), "# User lucent instructions");
+
+      const { items } = await SCANNERS.lucent(testRoot, testHome, getTool("lucent"));
+      const contexts = items.filter((i) => i.type === "context-file");
+      assert.equal(contexts.length, 1);
+      if (contexts[0]!.type === "context-file") {
+        assert.equal(contexts[0]!.name, "LUCENT.md (user)");
+        assert.equal(contexts[0]!.source.level, "user");
+      }
+    } finally {
+      cleanup();
+    }
+  });
+
+  test("discovers LUCENT.md at project root", async () => {
+    const { testRoot, testHome, cleanup } = makeTempDirs();
+    try {
+      writeText(join(testRoot, "LUCENT.md"), "# Project lucent instructions");
+
+      const { items } = await SCANNERS.lucent(testRoot, testHome, getTool("lucent"));
+      const contexts = items.filter((i) => i.type === "context-file");
+      assert.equal(contexts.length, 1);
+      if (contexts[0]!.type === "context-file") {
+        assert.equal(contexts[0]!.name, "LUCENT.md");
+        assert.equal(contexts[0]!.source.level, "project");
+      }
+    } finally {
+      cleanup();
+    }
+  });
+
+  test("discovers .lucent/LUCENT.md at project root", async () => {
+    const { testRoot, testHome, cleanup } = makeTempDirs();
+    try {
+      writeText(join(testRoot, ".lucent/LUCENT.md"), "# Project .lucent instructions");
+
+      const { items } = await SCANNERS.lucent(testRoot, testHome, getTool("lucent"));
+      const contexts = items.filter((i) => i.type === "context-file");
+      assert.equal(contexts.length, 1);
+      if (contexts[0]!.type === "context-file") {
+        assert.equal(contexts[0]!.name, ".lucent/LUCENT.md");
+        assert.equal(contexts[0]!.source.level, "project");
+      }
+    } finally {
+      cleanup();
+    }
+  });
+
+  test("discovers all three LUCENT.md locations simultaneously", async () => {
+    const { testRoot, testHome, cleanup } = makeTempDirs();
+    try {
+      writeText(join(testHome, ".lucent/LUCENT.md"), "User instructions");
+      writeText(join(testRoot, "LUCENT.md"), "Project root instructions");
+      writeText(join(testRoot, ".lucent/LUCENT.md"), "Project .lucent instructions");
+
+      const { items } = await SCANNERS.lucent(testRoot, testHome, getTool("lucent"));
+      const contexts = items.filter((i) => i.type === "context-file");
+      assert.equal(contexts.length, 3);
+    } finally {
+      cleanup();
+    }
+  });
+
+  test("handles missing files gracefully", async () => {
+    const { testRoot, testHome, cleanup } = makeTempDirs();
+    try {
+      const { items, warnings } = await SCANNERS.lucent(testRoot, testHome, getTool("lucent"));
+      assert.equal(items.length, 0);
+      assert.equal(warnings.length, 0);
+    } finally {
+      cleanup();
+    }
+  });
+});
+
 // ── VS Code ───────────────────────────────────────────────────────────────────
 
 describe("VS Code scanner", () => {
