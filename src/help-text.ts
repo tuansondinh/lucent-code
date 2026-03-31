@@ -1,6 +1,6 @@
 const SUBCOMMAND_HELP: Record<string, string> = {
   config: [
-    'Usage: gsd config',
+    'Usage: luck config',
     '',
     'Re-run the interactive setup wizard to configure:',
     '  - LLM provider (Anthropic, OpenAI, Google, etc.)',
@@ -12,15 +12,15 @@ const SUBCOMMAND_HELP: Record<string, string> = {
   ].join('\n'),
 
   update: [
-    'Usage: gsd update',
+    'Usage: luck update',
     '',
-    'Update GSD to the latest version.',
+    'Update LUCK to the latest version.',
     '',
     'Equivalent to: npm install -g gsd-pi@latest',
   ].join('\n'),
 
   sessions: [
-    'Usage: gsd sessions',
+    'Usage: luck sessions',
     '',
     'List all saved sessions for the current directory and interactively',
     'pick one to resume. Shows date, message count, and a preview of the',
@@ -33,7 +33,7 @@ const SUBCOMMAND_HELP: Record<string, string> = {
   ].join('\n'),
 
   worktree: [
-    'Usage: gsd worktree <command> [args]',
+    'Usage: luck worktree <command> [args]',
     '',
     'Manage isolated git worktrees for parallel work streams.',
     '',
@@ -44,30 +44,30 @@ const SUBCOMMAND_HELP: Record<string, string> = {
     '  remove <name>        Remove a worktree (--force to remove with unmerged changes)',
     '',
     'The -w flag creates/resumes worktrees for interactive sessions:',
-    '  gsd -w               Auto-name a new worktree, or resume the only active one',
-    '  gsd -w my-feature    Create or resume a named worktree',
+    '  luck -w               Auto-name a new worktree, or resume the only active one',
+    '  luck -w my-feature    Create or resume a named worktree',
     '',
     'Lifecycle:',
-    '  1. gsd -w             Create worktree, start session inside it',
+    '  1. luck -w             Create worktree, start session inside it',
     '  2. (work normally)    All changes happen on the worktree branch',
     '  3. Ctrl+C             Exit — dirty work is auto-committed',
-    '  4. gsd -w             Resume where you left off',
-    '  5. gsd worktree merge Squash-merge into main when done',
+    '  4. luck -w             Resume where you left off',
+    '  5. luck worktree merge Squash-merge into main when done',
     '',
     'Examples:',
-    '  gsd -w                              Start in a new auto-named worktree',
-    '  gsd -w auth-refactor                Create/resume "auth-refactor" worktree',
-    '  gsd worktree list                   See all worktrees and their status',
-    '  gsd worktree merge auth-refactor    Merge and clean up',
-    '  gsd worktree clean                  Remove all merged/empty worktrees',
-    '  gsd worktree remove old-branch      Remove a specific worktree',
-    '  gsd worktree remove old-branch --force  Remove even with unmerged changes',
+    '  luck -w                              Start in a new auto-named worktree',
+    '  luck -w auth-refactor                Create/resume "auth-refactor" worktree',
+    '  luck worktree list                   See all worktrees and their status',
+    '  luck worktree merge auth-refactor    Merge and clean up',
+    '  luck worktree clean                  Remove all merged/empty worktrees',
+    '  luck worktree remove old-branch      Remove a specific worktree',
+    '  luck worktree remove old-branch --force  Remove even with unmerged changes',
   ].join('\n'),
 
   headless: [
-    'Usage: gsd headless [flags] [command] [args...]',
+    'Usage: luck headless [flags] [command] [args...]',
     '',
-    'Run /gsd commands without the TUI. Default command: auto',
+    'Run /luck commands without the TUI. Default command: auto',
     '',
     'Flags:',
     '  --timeout N          Overall timeout in ms (default: 300000)',
@@ -92,28 +92,28 @@ const SUBCOMMAND_HELP: Record<string, string> = {
     '  --verbose            Show tool calls in progress output',
     '',
     'Examples:',
-    '  gsd headless                                    Run /gsd auto',
-    '  gsd headless next                               Run one unit',
-    '  gsd headless --json status                      Machine-readable status',
-    '  gsd headless --timeout 60000                    With 1-minute timeout',
-    '  gsd headless new-milestone --context spec.md    Create milestone from file',
-    '  cat spec.md | gsd headless new-milestone --context -   From stdin',
-    '  gsd headless new-milestone --context spec.md --auto    Create + auto-execute',
-    '  gsd headless --supervised auto                     Supervised orchestrator mode',
-    '  gsd headless --answers answers.json auto              With pre-supplied answers',
-    '  gsd headless --events agent_end,extension_ui_request auto   Filtered event stream',
-    '  gsd headless query                              Instant JSON state snapshot',
+    '  luck headless                                    Run /luck auto',
+    '  luck headless next                               Run one unit',
+    '  luck headless --json status                      Machine-readable status',
+    '  luck headless --timeout 60000                    With 1-minute timeout',
+    '  luck headless new-milestone --context spec.md    Create milestone from file',
+    '  cat spec.md | luck headless new-milestone --context -   From stdin',
+    '  luck headless new-milestone --context spec.md --auto    Create + auto-execute',
+    '  luck headless --supervised auto                     Supervised orchestrator mode',
+    '  luck headless --answers answers.json auto              With pre-supplied answers',
+    '  luck headless --events agent_end,extension_ui_request auto   Filtered event stream',
+    '  luck headless query                              Instant JSON state snapshot',
     '',
     'Exit codes: 0 = complete, 1 = error/timeout, 2 = blocked',
   ].join('\n'),
 }
 
-// Alias: `gsd wt --help` → same as `gsd worktree --help`
+// Alias: `luck wt --help` → same as `luck worktree --help`
 SUBCOMMAND_HELP['wt'] = SUBCOMMAND_HELP['worktree']
 
 export function printHelp(version: string): void {
-  process.stdout.write(`GSD v${version} — Get Shit Done\n\n`)
-  process.stdout.write('Usage: gsd [options] [message...]\n\n')
+  process.stdout.write(`LUCK v${version} — Lucent Code Kit\n\n`)
+  process.stdout.write('Usage: luck [options] [message...]\n\n')
   process.stdout.write('Options:\n')
   process.stdout.write('  --mode <text|json|rpc|mcp> Output mode (default: interactive)\n')
   process.stdout.write('  --print, -p              Single-shot print mode\n')
@@ -128,17 +128,17 @@ export function printHelp(version: string): void {
   process.stdout.write('  --help, -h               Print this help and exit\n')
   process.stdout.write('\nSubcommands:\n')
   process.stdout.write('  config                   Re-run the setup wizard\n')
-  process.stdout.write('  update                   Update GSD to the latest version\n')
+  process.stdout.write('  update                   Update LUCK to the latest version\n')
   process.stdout.write('  sessions                 List and resume a past session\n')
   process.stdout.write('  worktree <cmd>           Manage worktrees (list, merge, clean, remove)\n')
-  process.stdout.write('  headless [cmd] [args]    Run /gsd commands without TUI (default: auto)\n')
-  process.stdout.write('\nRun gsd <subcommand> --help for subcommand-specific help.\n')
+  process.stdout.write('  headless [cmd] [args]    Run /luck commands without TUI (default: auto)\n')
+  process.stdout.write('\nRun luck <subcommand> --help for subcommand-specific help.\n')
 }
 
 export function printSubcommandHelp(subcommand: string, version: string): boolean {
   const help = SUBCOMMAND_HELP[subcommand]
   if (!help) return false
-  process.stdout.write(`GSD v${version} — Get Shit Done\n\n`)
+  process.stdout.write(`LUCK v${version} — Lucent Code Kit\n\n`)
   process.stdout.write(help + '\n')
   return true
 }

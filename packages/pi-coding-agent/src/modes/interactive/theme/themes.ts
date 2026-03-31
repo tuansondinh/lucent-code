@@ -19,18 +19,18 @@ import type { ThemeJson } from "./theme.js";
 const dark: ThemeJson = {
 	name: "dark",
 	vars: {
-		cyan: "#00d7ff",
+		cyan: "#f06020",
 		blue: "#5f87ff",
 		green: "#b5bd68",
 		red: "#cc6666",
 		yellow: "#ffff00",
-		gray: "#808080",
-		dimGray: "#666666",
+		gray: "#bec8d6",
+		dimGray: "#8793a3",
 		darkGray: "#505050",
-		accent: "#8abeb7",
-		selectedBg: "#3a3a4a",
-		userMsgBg: "#343541",
-		toolPendingBg: "#282832",
+		accent: "#f06020",
+		selectedBg: "#323640",
+		userMsgBg: "#252930",
+		toolPendingBg: "#2b2f38",
 		toolSuccessBg: "#283228",
 		toolErrorBg: "#3c2828",
 		customMsgBg: "#2d2838",
@@ -61,7 +61,7 @@ const dark: ThemeJson = {
 		toolOutput: "gray",
 
 		mdHeading: "#f0c674",
-		mdLink: "#81a2be",
+		mdLink: "#5a8aaa",
 		mdLinkUrl: "dimGray",
 		mdCode: "accent",
 		mdCodeBlock: "green",
@@ -108,7 +108,7 @@ const dark: ThemeJson = {
 const light: ThemeJson = {
 	name: "light",
 	vars: {
-		teal: "#5a8080",
+		teal: "#c85a18",
 		blue: "#547da7",
 		green: "#588458",
 		red: "#aa5555",

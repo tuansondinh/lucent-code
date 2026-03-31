@@ -1,16 +1,16 @@
 <overview>
-GSD-specific skill ecosystem details: directory conventions, discovery mechanics, telemetry, and health monitoring. Read this reference when creating or auditing skills within GSD.
+LUCK-specific skill ecosystem details: directory conventions, discovery mechanics, telemetry, and health monitoring. Read this reference when creating or auditing skills within LUCK.
 </overview>
 
 <skill_directories>
-GSD supports two skill directories, checked in order:
+LUCK supports two skill directories, checked in order:
 
 **User-scope (global):** `~/.gsd/agent/skills/`
-- Available in every GSD session regardless of working directory
+- Available in every LUCK session regardless of working directory
 - Installed by default or by the user
 
 **Project-scope (local):** `.pi/agent/skills/`
-- Available only when GSD runs inside the project directory
+- Available only when LUCK runs inside the project directory
 - The project-local directory uses `.pi` (inherited from the pi base), **not** `.gsd`
 - Ideal for project-specific workflows, deploy scripts, or conventions
 
@@ -18,7 +18,7 @@ Skills in both directories follow the same SKILL.md format and router pattern co
 </skill_directories>
 
 <skill_discovery>
-GSD auto-discovers skills at session start and during auto-mode:
+LUCK auto-discovers skills at session start and during auto-mode:
 
 **Session start:** All skills in both directories are enumerated and their names + descriptions are injected into the system prompt as `<available_skills>`.
 
@@ -42,7 +42,7 @@ Skill metadata has validation constraints:
 - **Staleness detection:** Skills unused for 60+ days are flagged as stale
 - **Pass/fail rates:** Derived from unit completion status when a skill is active
 
-Telemetry data is stored in `~/.gsd/metrics.json` alongside other GSD metrics.
+Telemetry data is stored in `~/.gsd/metrics.json` alongside other LUCK metrics.
 </skill_telemetry>
 
 <skill_health>

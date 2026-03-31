@@ -24,10 +24,10 @@
 
 ```bash
 # Test in isolation
-gsd -e ./path/to/extension.ts
+luck -e ./path/to/extension.ts
 
-# Check GSD startup output for errors
-# Extension errors are logged but don't crash GSD
+# Check LUCK startup output for errors
+# Extension errors are logged but don't crash LUCK
 ```
 
 ## Step 3: Verify File Location
@@ -47,7 +47,7 @@ Read `../references/key-rules-gotchas.md` and verify each rule against the exten
 ## Step 5: Add Debugging
 
 ```typescript
-// Temporary: log to stderr (visible in GSD output)
+// Temporary: log to stderr (visible in LUCK output)
 console.error("[my-ext] Loading...");
 
 pi.on("session_start", async (_event, ctx) => {

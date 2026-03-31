@@ -12,7 +12,7 @@
 ## Step 1: Determine Scope and Placement
 
 Ask the user:
-- **Global** (`~/.gsd/agent/extensions/`) — Available in all GSD sessions
+- **Global** (`~/.gsd/agent/extensions/`) — Available in all LUCK sessions
 - **Project-local** (`.gsd/extensions/`) — Available only in this project
 
 ## Step 2: Determine Extension Capabilities
@@ -124,14 +124,14 @@ pi.on("tool_call", async (event, ctx) => {
 
 ```bash
 # Quick test without installing
-gsd -e ./path/to/my-extension.ts
+luck -e ./path/to/my-extension.ts
 
 # Or place in extensions dir and reload
 /reload
 ```
 
 Verify:
-- Extension loads without errors (check GSD startup output)
+- Extension loads without errors (check LUCK startup output)
 - Tools appear when LLM is asked to use them
 - Commands respond to `/mycommand`
 - Event hooks trigger at expected points

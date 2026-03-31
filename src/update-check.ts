@@ -50,7 +50,7 @@ export function writeUpdateCache(cache: UpdateCheckCache, cachePath: string = CA
 function printUpdateBanner(current: string, latest: string): void {
   process.stderr.write(
     `  ${chalk.yellow('Update available:')} ${chalk.dim(`v${current}`)} → ${chalk.bold(`v${latest}`)}\n` +
-    `  ${chalk.dim('Run')} npm update -g gsd-pi ${chalk.dim('or')} /gsd update ${chalk.dim('to upgrade')}\n\n`,
+    `  ${chalk.dim('Run')} npm update -g gsd-pi ${chalk.dim('or')} /luck update ${chalk.dim('to upgrade')}\n\n`,
   )
 }
 
@@ -213,7 +213,7 @@ export async function checkAndPromptForUpdates(options: UpdateCheckOptions = {})
       process.stderr.write(`\n  ${chalk.yellow(`Update failed. You can run: npm install -g ${NPM_PACKAGE_NAME}@latest`)}\n\n`)
     }
   } else {
-    process.stderr.write(`  ${chalk.dim('Skipped. Run')} gsd update ${chalk.dim('anytime to upgrade.')}\n\n`)
+    process.stderr.write(`  ${chalk.dim('Skipped. Run')} luck update ${chalk.dim('anytime to upgrade.')}\n\n`)
   }
 
   return false

@@ -55,6 +55,7 @@ import type {
 import { FooterDataProvider, type ReadonlyFooterDataProvider } from "../../core/footer-data-provider.js";
 import { type AppAction, KeybindingsManager } from "../../core/keybindings.js";
 import { createCompactionSummaryMessage } from "../../core/messages.js";
+import { getPermissionMode, setPermissionMode, type PermissionMode } from "../../core/tool-approval.js";
 import { resolveModelScope } from "../../core/model-resolver.js";
 import type { ResourceDiagnostic } from "../../core/resource-loader.js";
 import { type SessionContext, SessionManager } from "../../core/session-manager.js";
@@ -78,6 +79,7 @@ import { ExtensionSelectorComponent } from "./components/extension-selector.js";
 import { FooterComponent } from "./components/footer.js";
 import { appKey, appKeyHint, editorKey, formatKeyForDisplay, keyHint, rawKeyHint } from "./components/keybinding-hints.js";
 import { LoginDialogComponent } from "./components/login-dialog.js";
+import { CommandPaletteComponent } from "./components/command-palette.js";
 import { ModelSelectorComponent } from "./components/model-selector.js";
 import { OAuthSelectorComponent } from "./components/oauth-selector.js";
 import { ProviderManagerComponent } from "./components/provider-manager.js";
@@ -287,6 +289,7 @@ export class InteractiveMode {
 		this.footerDataProvider = new FooterDataProvider();
 		this.footer = new FooterComponent(session, this.footerDataProvider);
 		this.footer.setAutoCompactEnabled(session.autoCompactionEnabled);
+		this.footer.setPermissionMode(getPermissionMode());
 
 		// Load hide thinking block setting
 		this.hideThinkingBlock = this.settingsManager.getHideThinkingBlock();
@@ -422,6 +425,7 @@ export class InteractiveMode {
 				hint("suspend", "to suspend"),
 				keyHint("deleteToLineEnd", "to delete to end"),
 				hint("cycleThinkingLevel", "to cycle thinking level"),
+				hint("cyclePermissionMode", "to cycle permission mode"),
 				rawKeyHint(`${appKey(kb, "cycleModelForward")}/${appKey(kb, "cycleModelBackward")}`, "to cycle models"),
 				hint("selectModel", "to select model"),
 				hint("expandTools", "to expand tools"),
@@ -1909,6 +1913,8 @@ export class InteractiveMode {
 		this.defaultEditor.onAction("tree", () => this.showTreeSelector());
 		this.defaultEditor.onAction("fork", () => this.showUserMessageSelector());
 		this.defaultEditor.onAction("resume", () => this.showSessionSelector());
+		this.defaultEditor.onAction("cyclePermissionMode", () => this.cyclePermissionMode());
+		this.defaultEditor.onAction("commandPalette", () => this.showCommandPalette());
 
 		this.defaultEditor.onChange = (text: string) => {
 			const wasBashMode = this.isBashMode;
@@ -1977,6 +1983,7 @@ export class InteractiveMode {
 			showProviderManager: () => this.showProviderManager(),
 			showOAuthSelector: (mode) => this.showOAuthSelector(mode),
 			showSessionSelector: () => this.showSessionSelector(),
+			showCommandPalette: () => this.showCommandPalette(),
 			handleClearCommand: () => this.handleClearCommand(),
 			handleReloadCommand: () => this.handleReloadCommand(),
 			handleDebugCommand: () => this.handleDebugCommand(),
@@ -2395,6 +2402,16 @@ export class InteractiveMode {
 		this.ui.requestRender();
 	}
 
+	private cyclePermissionMode(): void {
+		const modes: PermissionMode[] = ["danger-full-access", "accept-on-edit", "auto"];
+		const current = getPermissionMode();
+		const idx = modes.indexOf(current);
+		const next = modes[(idx + 1) % modes.length];
+		setPermissionMode(next);
+		this.footer.setPermissionMode(next);
+		this.ui.requestRender();
+	}
+
 	private cycleThinkingLevel(): void {
 		const newLevel = this.session.cycleThinkingLevel();
 		if (newLevel === undefined) {
@@ -2747,6 +2764,50 @@ export class InteractiveMode {
 		this.editorContainer.addChild(component);
 		this.ui.setFocus(focus);
 		this.ui.requestRender();
+	}
+
+	private showCommandPalette(): void {
+		this.showSelector((done) => {
+			const palette = new CommandPaletteComponent(
+				(actionId) => {
+					done();
+					this.dispatchPaletteAction(actionId);
+				},
+				() => {
+					done();
+				},
+			);
+			return { component: palette, focus: palette };
+		});
+	}
+
+	private dispatchPaletteAction(actionId: string): void {
+		switch (actionId) {
+			case "session:new":
+				void this.handleClearCommand();
+				break;
+			case "session:switch":
+				this.showSessionSelector();
+				break;
+			case "model:switch":
+				void this.handleModelCommand();
+				break;
+			case "thinking:change":
+				void dispatchSlashCommand("/thinking", this.getSlashCommandContext());
+				break;
+			case "settings:open":
+				this.showSettingsSelector();
+				break;
+			case "commands:compact":
+				void dispatchSlashCommand("/compact", this.getSlashCommandContext());
+				break;
+			case "commands:clear":
+				void this.handleClearCommand();
+				break;
+			case "mode:toggle":
+				this.cyclePermissionMode();
+				break;
+		}
 	}
 
 	private showSettingsSelector(): void {

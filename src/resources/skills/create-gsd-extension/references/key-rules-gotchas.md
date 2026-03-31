@@ -1,5 +1,5 @@
 <overview>
-Non-negotiable rules and common gotchas when building GSD extensions.
+Non-negotiable rules and common gotchas when building LUCK extensions.
 </overview>
 
 <must_follow>
@@ -22,15 +22,15 @@ Non-negotiable rules and common gotchas when building GSD extensions.
 - Overlay components are **disposed when closed** — create fresh instances each time
 - Treat `ctx.reload()` as terminal — code after runs from pre-reload version
 - Check `ctx.hasUI` before dialog methods (false in print/JSON mode)
-- Extension errors are logged but don't crash GSD — tool_call handler errors fail-safe (block the tool)
+- Extension errors are logged but don't crash LUCK — tool_call handler errors fail-safe (block the tool)
 </common_patterns>
 
-<gsd_paths>
-**GSD extension paths:**
+<luck_paths>
+**LUCK extension paths:**
 - Global: `~/.gsd/agent/extensions/*.ts`
 - Global (subdir): `~/.gsd/agent/extensions/*/index.ts`
 - Project-local: `.gsd/extensions/*.ts`
 - Project-local (subdir): `.gsd/extensions/*/index.ts`
 
-The upstream pi docs reference `~/.pi` paths — GSD uses `~/.gsd` everywhere instead.
-</gsd_paths>
+The upstream pi docs reference `~/.pi` paths — LUCK uses `~/.gsd` everywhere instead.
+</luck_paths>

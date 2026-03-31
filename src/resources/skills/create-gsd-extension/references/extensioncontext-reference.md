@@ -21,7 +21,7 @@ ctx.ui.setStatus("my-ext", "● Active");             // Footer status
 ctx.ui.setStatus("my-ext", undefined);              // Clear
 ctx.ui.setWidget("my-id", ["Line 1", "Line 2"]);   // Widget above editor
 ctx.ui.setWidget("my-id", ["Below!"], { placement: "belowEditor" });
-ctx.ui.setTitle("gsd - my project");                 // Terminal title
+ctx.ui.setTitle("luck - my project");                 // Terminal title
 ctx.ui.setEditorText("Prefill");                    // Set editor content
 ctx.ui.setWorkingMessage("Analyzing...");           // Working message during streaming
 ctx.ui.setToolsExpanded(true);                      // Expand tool output

@@ -56,7 +56,7 @@ export async function startMcpServer(options: {
   }
 
   const server = new Server(
-    { name: 'gsd', version },
+    { name: 'luck', version },
     { capabilities: { tools: {} } },
   )
 
@@ -104,5 +104,5 @@ export async function startMcpServer(options: {
   // Connect to stdin/stdout transport
   const transport = new StdioServerTransport()
   await server.connect(transport)
-  process.stderr.write(`[gsd] MCP server started (v${version})\n`)
+  process.stderr.write(`[luck] MCP server started (v${version})\n`)
 }

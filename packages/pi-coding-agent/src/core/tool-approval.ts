@@ -46,7 +46,14 @@ const pendingClassifications = new Map<string, { resolve: (approved: boolean) =>
 let approvalIdCounter = 0;
 let classifierIdCounter = 0;
 
+let permissionModeOverride: PermissionMode | null = null;
+
+export function setPermissionMode(mode: PermissionMode): void {
+	permissionModeOverride = mode;
+}
+
 export function getPermissionMode(): PermissionMode {
+	if (permissionModeOverride !== null) return permissionModeOverride;
 	const mode = process.env.LUCENT_CODE_PERMISSION_MODE;
 	if (mode === "accept-on-edit") return "accept-on-edit";
 	if (mode === "auto") return "auto";

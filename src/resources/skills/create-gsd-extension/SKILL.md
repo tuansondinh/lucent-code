@@ -1,13 +1,13 @@
 ---
 name: create-gsd-extension
-description: Create, debug, and iterate on GSD extensions (TypeScript modules that add tools, commands, event hooks, custom UI, and providers to GSD). Use when asked to build an extension, add a tool the LLM can call, register a slash command, hook into GSD events, create custom TUI components, or modify GSD behavior. Triggers on "create extension", "build extension", "add a tool", "register command", "hook into gsd", "custom tool", "gsd plugin", "gsd extension".
+description: Create, debug, and iterate on LUCK extensions (TypeScript modules that add tools, commands, event hooks, custom UI, and providers to LUCK). Use when asked to build an extension, add a tool the LLM can call, register a slash command, hook into LUCK events, create custom TUI components, or modify LUCK behavior. Triggers on "create extension", "build extension", "add a tool", "register command", "hook into luck", "custom tool", "luck plugin", "luck extension".
 ---
 
 <essential_principles>
 
-**Extensions are TypeScript modules** that hook into GSD's runtime (built on pi). They export a default function receiving `ExtensionAPI` and use it to subscribe to events, register tools/commands/shortcuts, and interact with the session.
+**Extensions are TypeScript modules** that hook into LUCK's runtime (built on pi). They export a default function receiving `ExtensionAPI` and use it to subscribe to events, register tools/commands/shortcuts, and interact with the session.
 
-**GSD extension paths:**
+**LUCK extension paths:**
 - Global extensions: `~/.gsd/agent/extensions/*.ts` or `~/.gsd/agent/extensions/*/index.ts`
 - Project-local extensions: `.gsd/extensions/*.ts` or `.gsd/extensions/*/index.ts`
 
@@ -77,7 +77,7 @@ All domain knowledge in `references/`:
 <success_criteria>
 Extension is complete when:
 - TypeScript compiles without errors (jiti handles this at runtime)
-- Extension loads on GSD startup or `/reload` without errors
+- Extension loads on LUCK startup or `/reload` without errors
 - Tools appear in the LLM's system prompt and are callable
 - Commands respond to `/command` input
 - Event hooks fire at the expected lifecycle points

@@ -50,7 +50,7 @@ export function migratePiCredentials(authStorage: AuthStorage): boolean {
       authStorage.set(providerId, credential)
       const isLlm = LLM_PROVIDER_IDS.includes(providerId)
       if (isLlm) migratedLlm = true
-      process.stderr.write(`[gsd] Migrated ${isLlm ? 'LLM provider' : 'credential'}: ${providerId} (from Pi)\n`)
+      process.stderr.write(`[luck] Migrated ${isLlm ? 'LLM provider' : 'credential'}: ${providerId} (from Pi)\n`)
     }
 
     return migratedLlm

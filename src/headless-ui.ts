@@ -88,7 +88,7 @@ export function formatProgress(event: Record<string, unknown>, verbose: boolean)
 
     case 'extension_ui_request':
       if (event.method === 'notify') {
-        return `[gsd]     ${event.message ?? ''}`
+        return `[luck]     ${event.message ?? ''}`
       }
       if (event.method === 'setStatus') {
         return `[status]  ${event.message ?? ''}`

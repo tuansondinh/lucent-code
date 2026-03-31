@@ -17,8 +17,8 @@
     "apps/studio"
   ],
   "bin": {
-    "gsd": "dist/loader.js",
-    "gsd-cli": "dist/loader.js"
+    "luck": "dist/loader.js",
+    "luck-cli": "dist/loader.js"
   },
   "files": [
     "dist",
@@ -65,7 +65,7 @@
     "build:native": "node native/scripts/build.js",
     "build:native:dev": "node native/scripts/build.js --dev",
     "dev": "node scripts/dev.js",
-    "gsd": "node scripts/dev-cli.js",
+    "luck": "node scripts/dev-cli.js",
     "postinstall": "node scripts/ensure-workspace-builds.cjs && node scripts/postinstall.js",
     "pi:install-global": "node scripts/install-pi-global.js",
     "pi:uninstall-global": "node scripts/uninstall-pi-global.js",

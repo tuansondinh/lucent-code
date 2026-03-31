@@ -149,7 +149,7 @@ pi.registerTool({
 });
 ```
 
-Start with no built-in tools: `gsd --no-tools -e ./my-extension.ts`
+Start with no built-in tools: `luck --no-tools -e ./my-extension.ts`
 </overriding_builtins>
 
 <multiple_tools>

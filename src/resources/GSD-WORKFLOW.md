@@ -1,8 +1,8 @@
-# GSD Workflow — Manual Bootstrap Protocol
+# LUCK Workflow — Manual Bootstrap Protocol
 
-> This document teaches you how to operate the GSD planning methodology manually using files on disk.
+> This document teaches you how to operate the LUCK planning methodology manually using files on disk.
 >
-> **When to read this:** At the start of any session working on GSD-managed work, or when loaded by `/gsd`.
+> **When to read this:** At the start of any session working on LUCK-managed work, or when loaded by `/luck`.
 >
 > **After reading this, always read `.gsd/STATE.md` to find out what's next.**
 > If the milestone has a `M###-CONTEXT.md`, read that too. If the active slice has an `S##-CONTEXT.md`, read that as well — these files contain project-specific decisions, reference paths, and implementation guidance that this generic methodology doc does not.
@@ -192,7 +192,7 @@ Critical wiring between artifacts:
 ### `STATE.md`
 
 ```markdown
-# GSD State
+# LUCK State
 
 **Active Milestone:** M001 — Title
 **Active Slice:** S02 — Slice Title
@@ -546,7 +546,7 @@ If files disagree, **pause and surface to the user**:
 
 ### Branch Lifecycle
 
-1. **Slice starts** → create branch `gsd/M001/S01` from main
+1. **Slice starts** → create branch `luck/M001/S01` from main
 2. **Per-task commits** on the branch — atomic, descriptive, bisectable
 3. **Slice completes** → squash merge to main as one clean commit
 4. **Branch deleted** — squash commit on main is the permanent record
@@ -564,7 +564,7 @@ One commit per slice. Individually revertable. Reads like a changelog.
 ### What the Branch Looks Like
 
 ```
-gsd/M001/S01:
+luck/M001/S01:
   test(S01/T03): round-trip tests passing
   feat(S01/T03): file writer with round-trip fidelity
   feat(S01/T02): markdown parser for plan files
@@ -593,7 +593,7 @@ Commit types: `feat`, `fix`, `test`, `refactor`, `docs`, `perf`, `chore`
 ```
 feat(M001/S01): file I/O foundation
 
-Agent can parse, format, load, and save all GSD file types with round-trip fidelity.
+Agent can parse, format, load, and save all LUCK file types with round-trip fidelity.
 
 Tasks completed:
 - T01: core types and interfaces
@@ -607,7 +607,7 @@ Tasks completed:
 |---------|-----|
 | Bad task | `git reset --hard HEAD~1` to previous commit on the branch |
 | Bad slice | `git revert <squash commit>` on main |
-| UAT failure after merge | Fix tasks on `gsd/M001/S01-fix` branch, squash as `fix(M001/S01): <fix>` |
+| UAT failure after merge | Fix tasks on `luck/M001/S01-fix` branch, squash as `fix(M001/S01): <fix>` |
 
 ---
 
@@ -661,6 +661,6 @@ This methodology doc is generic. Project-specific guidance belongs in the milest
 
 If you sense context pressure (many files read, long execution, lots of tool output):
 
-1. **If mid-task:** Write `continue.md` with exact resume state. Tell the user: "Context is getting full. I've saved progress to continue.md. Start a new session and run `/gsd` to pick up where you left off, or `/gsd auto` to resume in auto-execution mode."
+1. **If mid-task:** Write `continue.md` with exact resume state. Tell the user: "Context is getting full. I've saved progress to continue.md. Start a new session and run `/luck` to pick up where you left off, or `/luck auto` to resume in auto-execution mode."
 2. **If between tasks:** Just update `STATE.md` with the next action. No continue file needed — the next session will read STATE.md and pick up the next task cleanly.
 3. **Don't fight it.** The whole system is designed for this. A fresh session with the right files loaded is better than a stale session with degraded reasoning.

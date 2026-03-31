@@ -45,7 +45,7 @@
 		"fileTypes": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"],
 		"rootMarkers": ["package.json", "tsconfig.json", "jsconfig.json"],
 		"initOptions": {
-			"hostInfo": "gsd-coding-agent",
+			"hostInfo": "luck-coding-agent",
 			"preferences": {
 				"includeInlayParameterNameHints": "all",
 				"includeInlayVariableTypeHints": true,

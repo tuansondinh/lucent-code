@@ -52,9 +52,9 @@ function exitIfManagedResourcesAreNewer(currentAgentDir: string): void {
   }
 
   process.stderr.write(
-    `[gsd] ${chalk.yellow('Version mismatch detected')}\n` +
-    `[gsd] Synced resources are from ${chalk.bold(`v${managedVersion}`)}, but this \`gsd\` binary is ${chalk.dim(`v${currentVersion}`)}.\n` +
-    `[gsd] Run ${chalk.bold('npm install -g gsd-pi@latest')} or ${chalk.bold('gsd update')}, then try again.\n`,
+    `[luck] ${chalk.yellow('Version mismatch detected')}\n` +
+    `[luck] Synced resources are from ${chalk.bold(`v${managedVersion}`)}, but this \`luck\` binary is ${chalk.dim(`v${currentVersion}`)}.\n` +
+    `[luck] Run ${chalk.bold('npm install -g gsd-pi@latest')} or ${chalk.bold('luck update')}, then try again.\n`,
   )
   process.exit(1)
 }
@@ -116,12 +116,12 @@ exitIfManagedResourcesAreNewer(agentDir)
 // handles that prevent process.exit() from completing promptly.
 const hasSubcommand = cliFlags.messages.length > 0
 if (!process.stdin.isTTY && !isPrintMode && !hasSubcommand && !cliFlags.listModels) {
-  process.stderr.write('[gsd] Error: Interactive mode requires a terminal (TTY).\n')
-  process.stderr.write('[gsd] Non-interactive alternatives:\n')
-  process.stderr.write('[gsd]   gsd --print "your message"     Single-shot prompt\n')
-  process.stderr.write('[gsd]   gsd --mode rpc                 JSON-RPC over stdin/stdout\n')
-  process.stderr.write('[gsd]   gsd --mode mcp                 MCP server over stdin/stdout\n')
-  process.stderr.write('[gsd]   gsd --mode text "message"      Text output mode\n')
+  process.stderr.write('[luck] Error: Interactive mode requires a terminal (TTY).\n')
+  process.stderr.write('[luck] Non-interactive alternatives:\n')
+  process.stderr.write('[luck]   luck --print "your message"     Single-shot prompt\n')
+  process.stderr.write('[luck]   luck --mode rpc                 JSON-RPC over stdin/stdout\n')
+  process.stderr.write('[luck]   luck --mode mcp                 MCP server over stdin/stdout\n')
+  process.stderr.write('[luck]   luck --mode text "message"      Text output mode\n')
   process.exit(1)
 }
 
@@ -256,7 +256,7 @@ if (!isPrintMode) {
 // Warn if terminal is too narrow for readable output
 if (!isPrintMode && process.stdout.columns && process.stdout.columns < 40) {
   process.stderr.write(
-    chalk.yellow(`[gsd] Terminal width is ${process.stdout.columns} columns (minimum recommended: 40). Output may be unreadable.\n`),
+    chalk.yellow(`[luck] Terminal width is ${process.stdout.columns} columns (minimum recommended: 40). Output may be unreadable.\n`),
   )
 }
 
@@ -394,7 +394,7 @@ if (isPrintMode) {
       // Downgrade conflicts with built-in tools to warnings (#1347)
       const isSuperseded = err.error.includes("supersedes");
       const prefix = isSuperseded ? "Extension conflict" : "Extension load error";
-      process.stderr.write(`[gsd] ${prefix}: ${err.error}\n`)
+      process.stderr.write(`[luck] ${prefix}: ${err.error}\n`)
     }
   }
 
@@ -512,7 +512,7 @@ if (extensionsResult.errors.length > 0) {
   for (const err of extensionsResult.errors) {
     const isSuperseded = err.error.includes("supersedes");
     const prefix = isSuperseded ? "Extension conflict" : "Extension load error";
-    process.stderr.write(`[gsd] ${prefix}: ${err.error}\n`)
+    process.stderr.write(`[luck] ${prefix}: ${err.error}\n`)
   }
 }
 
@@ -560,12 +560,12 @@ if (enabledModelPatterns && enabledModelPatterns.length > 0) {
 }
 
 if (!process.stdin.isTTY) {
-  process.stderr.write('[gsd] Error: Interactive mode requires a terminal (TTY).\n')
-  process.stderr.write('[gsd] Non-interactive alternatives:\n')
-  process.stderr.write('[gsd]   gsd --print "your message"     Single-shot prompt\n')
-  process.stderr.write('[gsd]   gsd --mode rpc                 JSON-RPC over stdin/stdout\n')
-  process.stderr.write('[gsd]   gsd --mode mcp                 MCP server over stdin/stdout\n')
-  process.stderr.write('[gsd]   gsd --mode text "message"      Text output mode\n')
+  process.stderr.write('[luck] Error: Interactive mode requires a terminal (TTY).\n')
+  process.stderr.write('[luck] Non-interactive alternatives:\n')
+  process.stderr.write('[luck]   luck --print "your message"     Single-shot prompt\n')
+  process.stderr.write('[luck]   luck --mode rpc                 JSON-RPC over stdin/stdout\n')
+  process.stderr.write('[luck]   luck --mode mcp                 MCP server over stdin/stdout\n')
+  process.stderr.write('[luck]   luck --mode text "message"      Text output mode\n')
   process.exit(1)
 }
 

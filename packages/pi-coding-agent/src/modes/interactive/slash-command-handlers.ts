@@ -97,6 +97,7 @@ export interface SlashCommandContext {
 	showProviderManager(): void;
 	showOAuthSelector(mode: "login" | "logout"): Promise<void>;
 	showSessionSelector(): void;
+	showCommandPalette(): void;
 	handleClearCommand(): Promise<void>;
 	handleReloadCommand(): Promise<void>;
 	handleDebugCommand(): void;
@@ -214,6 +215,10 @@ export async function dispatchSlashCommand(
 	}
 	if (text === "/resume") {
 		ctx.showSessionSelector();
+		return true;
+	}
+	if (text === "/palette") {
+		ctx.showCommandPalette();
 		return true;
 	}
 	if (text === "/quit") {

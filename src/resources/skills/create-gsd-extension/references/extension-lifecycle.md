@@ -3,10 +3,10 @@ The extension lifecycle from load to shutdown, including the full event flow.
 </overview>
 
 <loading>
-Extensions load when GSD starts (or on `/reload`). The default export function runs synchronously — subscribe to events and register tools/commands during this call.
+Extensions load when LUCK starts (or on `/reload`). The default export function runs synchronously — subscribe to events and register tools/commands during this call.
 
 ```
-GSD starts
+LUCK starts
   └─► Extension default function runs
       ├── pi.on("event", handler)      ← Subscribe
       ├── pi.registerTool({...})       ← Register tools
