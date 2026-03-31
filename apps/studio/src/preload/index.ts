@@ -198,6 +198,14 @@ const bridge = {
   oauthCancel: (providerId: string): Promise<void> =>
     ipcRenderer.invoke('cmd:oauth-cancel', providerId),
 
+  /** Get globally configured MCP servers from ~/.lucent/mcp.json. */
+  getMcpServers: (): Promise<Record<string, unknown>> =>
+    ipcRenderer.invoke('cmd:get-mcp-servers'),
+
+  /** Persist the full MCP servers config to ~/.lucent/mcp.json. */
+  setMcpServers: (servers: Record<string, unknown>): Promise<Record<string, unknown>> =>
+    ipcRenderer.invoke('cmd:set-mcp-servers', servers),
+
   /** OAuth progress event (browser open, device code, awaiting input, generic progress). */
   onOAuthProgress: (
     cb: (data: {

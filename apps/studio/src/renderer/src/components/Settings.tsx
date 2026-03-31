@@ -34,6 +34,7 @@ import {
   Copy,
   RefreshCw,
   ShieldCheck,
+  Plus,
 } from 'lucide-react'
 import packageJson from '../../../../package.json'
 import {
@@ -79,7 +80,7 @@ interface SettingsProps {
   isMobile?: boolean
 }
 
-type Tab = 'general' | 'updates' | 'apikeys' | 'models' | 'agents' | 'permissions' | 'shortcuts' | 'skills' | 'remote-access'
+type Tab = 'general' | 'updates' | 'apikeys' | 'models' | 'agents' | 'permissions' | 'shortcuts' | 'skills' | 'remote-access' | 'mcp'
 
 interface Model {
   provider: string
@@ -130,6 +131,7 @@ const TABS: TabItem[] = [
   { id: 'agents',    label: 'Agents',    icon: <Zap          className="w-3.5 h-3.5" /> },
   { id: 'permissions', label: 'Auto Mode', icon: <ShieldCheck className="w-3.5 h-3.5" /> },
   { id: 'skills',        label: 'Skills',        icon: <Zap      className="w-3.5 h-3.5" /> },
+  { id: 'mcp',           label: 'MCP Servers',   icon: <Globe    className="w-3.5 h-3.5" /> },
   { id: 'shortcuts',     label: 'Shortcuts',     icon: <Keyboard className="w-3.5 h-3.5" /> },
   { id: 'remote-access', label: 'Remote Access', icon: <Wifi     className="w-3.5 h-3.5" /> },
 ]
@@ -225,6 +227,9 @@ export function Settings({
   const [classifierProvider, setClassifierProvider] = useState<'anthropic' | 'google'>('anthropic')
   const [autoCompactThreshold, setAutoCompactThreshold] = useState(80)
   const [rtkEnabled, setRtkEnabled] = useState(false)
+
+  // ---- MCP Servers state ----
+  const [mcpServers, setMcpServers] = useState<Record<string, unknown>>({})
 
   // ---- Remote Access state ----
   const [remoteAccessEnabled, setRemoteAccessEnabled] = useState(false)
@@ -351,6 +356,13 @@ export function Settings({
         setSkills(list)
       }).catch(() => {}).finally(() => setLoadingSkills(false))
     }
+
+    // Load MCP servers
+    if (bridge.getMcpServers) {
+      bridge.getMcpServers().then((servers) => {
+        setMcpServers(servers ?? {})
+      }).catch(() => {})
+    }
   }, [open, bridge, refreshModels, refreshProviderStatuses, thinkingLevel, voiceAudioEnabled, voicePttShortcut])
 
   // -------------------------------------------------------------------------
@@ -449,6 +461,19 @@ export function Settings({
   const handleRtkEnabledChange = useCallback((enabled: boolean) => {
     setRtkEnabled(enabled)
     bridge.setSettings({ rtkEnabled: enabled }).catch(() => {})
+  }, [bridge])
+
+  const handleMcpServersChange = useCallback((servers: Record<string, unknown>) => {
+    setMcpServers(servers)
+    if (!bridge.setMcpServers) {
+      console.error('[MCP] bridge.setMcpServers is not available — bridge type:', typeof bridge, 'is Electron:', (window as unknown as Record<string, unknown>).__ELECTRON__)
+      return
+    }
+    bridge.setMcpServers(servers).then(() => {
+      console.log('[MCP] setMcpServers succeeded')
+    }).catch((err: unknown) => {
+      console.error('[MCP] setMcpServers failed:', err)
+    })
   }, [bridge])
 
   // Remote Access handlers
@@ -597,6 +622,12 @@ export function Settings({
             )}
             {activeTab === 'skills' && (
               <SkillsTab skills={skills} loading={loadingSkills} />
+            )}
+            {activeTab === 'mcp' && (
+              <McpServersTab
+                servers={mcpServers}
+                onServersChange={handleMcpServersChange}
+              />
             )}
             {activeTab === 'shortcuts' && (
               <ShortcutsTab
@@ -2217,6 +2248,226 @@ function AutoModeTab({ rules, onRulesChange, classifierProvider, onClassifierPro
             Add
           </Button>
         </div>
+      </Section>
+    </div>
+  )
+}
+
+// ============================================================================
+// McpServersTab
+// ============================================================================
+
+interface McpServerEntry {
+  command?: string
+  args?: string[]
+  env?: Record<string, string>
+  url?: string
+}
+
+interface McpServersTabProps {
+  servers: Record<string, unknown>
+  onServersChange: (servers: Record<string, unknown>) => void
+}
+
+const EMPTY_FORM = { name: '', type: 'stdio' as 'stdio' | 'http', command: '', args: '', url: '', envPairs: [] as { key: string; value: string }[] }
+
+function McpServersTab({ servers, onServersChange }: McpServersTabProps) {
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [formError, setFormError] = useState('')
+
+  const entries = Object.entries(servers) as [string, McpServerEntry][]
+
+  const addServer = () => {
+    const name = form.name.trim()
+    if (!name) { setFormError('Name is required'); return }
+    if (servers[name]) { setFormError(`Server "${name}" already exists`); return }
+    if (form.type === 'stdio' && !form.command.trim()) { setFormError('Command is required for stdio servers'); return }
+    if (form.type === 'http' && !form.url.trim()) { setFormError('URL is required for http servers'); return }
+
+    const env: Record<string, string> = {}
+    for (const { key, value } of form.envPairs) {
+      if (key.trim()) env[key.trim()] = value
+    }
+
+    const config: McpServerEntry = form.type === 'stdio'
+      ? {
+          command: form.command.trim(),
+          ...(form.args.trim() ? { args: form.args.trim().split(/\s+/) } : {}),
+          ...(Object.keys(env).length > 0 ? { env } : {}),
+        }
+      : {
+          url: form.url.trim(),
+          ...(Object.keys(env).length > 0 ? { env } : {}),
+        }
+
+    onServersChange({ ...servers, [name]: config })
+    setForm(EMPTY_FORM)
+    setFormError('')
+  }
+
+  const removeServer = (name: string) => {
+    const next = { ...servers }
+    delete next[name]
+    onServersChange(next)
+  }
+
+  const addEnvPair = () => setForm((f) => ({ ...f, envPairs: [...f.envPairs, { key: '', value: '' }] }))
+  const removeEnvPair = (i: number) => setForm((f) => ({ ...f, envPairs: f.envPairs.filter((_, idx) => idx !== i) }))
+  const updateEnvPair = (i: number, field: 'key' | 'value', val: string) =>
+    setForm((f) => ({ ...f, envPairs: f.envPairs.map((p, idx) => idx === i ? { ...p, [field]: val } : p) }))
+
+  return (
+    <div className="p-6 space-y-6">
+      <Section title="Configured Servers">
+        <p className="text-xs text-text-tertiary">
+          Global MCP servers available in all agent sessions. Project-level <code className="bg-bg-tertiary px-1 rounded">.mcp.json</code> servers take precedence if names conflict.
+        </p>
+        {entries.length === 0 ? (
+          <div className="text-xs text-text-tertiary bg-bg-tertiary rounded p-4 border border-dashed border-border text-center">
+            No global MCP servers configured.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {entries.map(([name, config]) => {
+              const isHttp = typeof config.url === 'string'
+              return (
+                <div key={name} className="flex items-center gap-2 bg-bg-secondary border border-border rounded-lg p-2.5 group">
+                  <span className={cn(
+                    'text-[10px] font-bold uppercase px-1.5 py-0.5 rounded flex-shrink-0',
+                    isHttp ? 'bg-blue-500/10 text-blue-400' : 'bg-accent/10 text-accent',
+                  )}>
+                    {isHttp ? 'http' : 'stdio'}
+                  </span>
+                  <span className="text-xs font-medium text-text-primary flex-shrink-0">{name}</span>
+                  <span className="flex-1 text-xs font-mono text-text-tertiary truncate">
+                    {isHttp ? config.url : config.command}
+                  </span>
+                  <button
+                    onClick={() => removeServer(name)}
+                    className="p-1 hover:text-red-400 text-text-tertiary transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                    title="Remove server"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Section>
+
+      <Section title="Add Server">
+        <div className="space-y-3">
+          <Field label="Name">
+            <Input
+              value={form.name}
+              onChange={(e) => { setForm((f) => ({ ...f, name: e.target.value })); setFormError('') }}
+              placeholder="e.g. railway, linear, github"
+              className="h-8 text-xs"
+            />
+          </Field>
+
+          <Field label="Transport">
+            <div className="flex gap-2">
+              {(['stdio', 'http'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setForm((f) => ({ ...f, type: t }))}
+                  className={cn(
+                    'px-3 py-1.5 rounded text-xs font-medium transition-colors border',
+                    form.type === t
+                      ? 'bg-accent/15 border-accent text-accent'
+                      : 'bg-bg-secondary border-border text-text-secondary hover:border-border-active',
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {form.type === 'stdio' ? (
+            <>
+              <Field label="Command" hint="The executable to run (e.g. npx, node, /usr/local/bin/my-server)">
+                <Input
+                  value={form.command}
+                  onChange={(e) => setForm((f) => ({ ...f, command: e.target.value }))}
+                  placeholder="npx"
+                  className="h-8 text-xs font-mono"
+                />
+              </Field>
+              <Field label="Args" hint="Space-separated arguments">
+                <Input
+                  value={form.args}
+                  onChange={(e) => setForm((f) => ({ ...f, args: e.target.value }))}
+                  placeholder="-y my-mcp-server"
+                  className="h-8 text-xs font-mono"
+                />
+              </Field>
+            </>
+          ) : (
+            <Field label="URL">
+              <Input
+                value={form.url}
+                onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+                placeholder="https://example.com/mcp"
+                className="h-8 text-xs font-mono"
+              />
+            </Field>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-text-secondary">Environment Variables</span>
+              <button
+                onClick={addEnvPair}
+                className="text-[10px] text-accent hover:text-accent/80 transition-colors"
+              >
+                + Add variable
+              </button>
+            </div>
+            {form.envPairs.map((pair, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <Input
+                  value={pair.key}
+                  onChange={(e) => updateEnvPair(i, 'key', e.target.value)}
+                  placeholder="KEY"
+                  className="h-7 text-xs font-mono w-32 flex-shrink-0"
+                />
+                <span className="text-text-tertiary text-xs">=</span>
+                <Input
+                  value={pair.value}
+                  onChange={(e) => updateEnvPair(i, 'value', e.target.value)}
+                  placeholder="value"
+                  className="h-7 text-xs font-mono flex-1"
+                />
+                <button
+                  onClick={() => removeEnvPair(i)}
+                  className="text-text-tertiary hover:text-red-400 transition-colors flex-shrink-0"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {formError && (
+            <p className="text-xs text-red-400">{formError}</p>
+          )}
+
+          <Button
+            onClick={addServer}
+            disabled={!form.name.trim()}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Server
+          </Button>
+        </div>
+
+        <p className="text-xs text-text-tertiary pt-2">
+          Changes take effect on the next agent session. Use <code className="bg-bg-tertiary px-1 rounded">mcp_servers(refresh: true)</code> in an active session to reload.
+        </p>
       </Section>
     </div>
   )

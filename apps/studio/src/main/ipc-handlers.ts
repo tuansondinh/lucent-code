@@ -10,7 +10,7 @@
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
-import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
 import type { PaneManager } from './pane-manager.js'
@@ -262,6 +262,46 @@ export function registerIpcHandlers(
     }
 
     return sanitizeSettingsForRenderer(settingsService.get())
+  })
+
+  // --------------------------------------------------------------------------
+  // MCP Servers config — not pane-specific
+  // --------------------------------------------------------------------------
+
+  ipcMain.handle('cmd:get-mcp-servers', () => {
+    const dir = process.env.LUCENT_CONFIG_DIR ?? join(homedir(), '.lucent')
+    const mcpPath = join(dir, 'mcp.json')
+    try {
+      const raw = readFileSync(mcpPath, 'utf8')
+      const parsed = JSON.parse(raw) as Record<string, unknown>
+      return (parsed.mcpServers ?? {}) as Record<string, unknown>
+    } catch {
+      return {}
+    }
+  })
+
+  ipcMain.handle('cmd:set-mcp-servers', (_event, servers: Record<string, unknown>) => {
+    if (typeof servers !== 'object' || servers === null || Array.isArray(servers)) {
+      throw new Error('Invalid MCP servers config: must be an object')
+    }
+    for (const [name, config] of Object.entries(servers)) {
+      if (typeof name !== 'string' || !name.trim()) {
+        throw new Error('Invalid MCP server name')
+      }
+      if (typeof config !== 'object' || config === null) {
+        throw new Error(`Invalid MCP server config for "${name}"`)
+      }
+      const c = config as Record<string, unknown>
+      const hasCommand = typeof c.command === 'string'
+      const hasUrl = typeof c.url === 'string'
+      if (!hasCommand && !hasUrl) {
+        throw new Error(`MCP server "${name}" must have either "command" or "url"`)
+      }
+    }
+    const dir = process.env.LUCENT_CONFIG_DIR ?? join(homedir(), '.lucent')
+    const mcpPath = join(dir, 'mcp.json')
+    writeFileSync(mcpPath, JSON.stringify({ mcpServers: servers }, null, 2), { encoding: 'utf8', mode: 0o600 })
+    return servers
   })
 
   // --------------------------------------------------------------------------

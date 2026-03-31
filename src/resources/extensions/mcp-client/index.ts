@@ -25,6 +25,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { homedir } from "node:os";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,7 +61,9 @@ function readConfigs(): McpServerConfig[] {
 
 	const servers: McpServerConfig[] = [];
 	const seen = new Set<string>();
+	const lucentDir = process.env.LUCENT_CONFIG_DIR ?? join(homedir(), ".lucent");
 	const configPaths = [
+		join(lucentDir, "mcp.json"),
 		join(process.cwd(), ".mcp.json"),
 		join(process.cwd(), ".gsd", "mcp.json"),
 	];
@@ -106,7 +109,8 @@ function readConfigs(): McpServerConfig[] {
 		}
 	}
 
-	configCache = servers;
+	// Only cache non-empty results so newly added servers are picked up without a refresh
+	if (servers.length > 0) configCache = servers;
 	return servers;
 }
 
@@ -175,7 +179,7 @@ async function closeAll(): Promise<void> {
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
 function formatServerList(servers: McpServerConfig[]): string {
-	if (servers.length === 0) return "No MCP servers configured. Add servers to .mcp.json or .gsd/mcp.json.";
+	if (servers.length === 0) return "No MCP servers configured. Add global servers via Settings → MCP Servers, or add project-level servers to .mcp.json or .gsd/mcp.json.";
 
 	const lines: string[] = [`${servers.length} MCP servers configured:\n`];
 
