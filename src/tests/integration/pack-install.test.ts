@@ -268,7 +268,7 @@ test("gsd exits early with a clear message when synced resources are newer than 
 
     assert.equal(result.code, 1, "startup exits with code 1 on version skew");
     assert.match(result.stderr, /Version mismatch detected/, "prints a friendly skew header");
-    assert.match(result.stderr, /npm install -g gsd-pi@latest|gsd update/, "prints upgrade guidance");
+    assert.match(result.stderr, /luck update/, "prints upgrade guidance");
     assert.doesNotMatch(result.stderr, /\[gsd\] Extension load error/, "fails before extension loading");
   } finally {
     rmSync(fakeHome, { recursive: true, force: true });

@@ -339,7 +339,10 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 			const maxAttempts = 3;
 			const baseDelayMs = 2000;
 			for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-				const key = await modelRegistry.getApiKeyForProvider(resolvedProvider);
+				const key = await modelRegistry.getApiKeyForProvider(
+					resolvedProvider,
+					sessionManager.getSessionId(),
+				);
 				if (key) return key;
 
 				// On the last attempt, fall through to error handling below

@@ -72,7 +72,7 @@ export function printWelcomeScreen(opts: WelcomeScreenOptions): void {
 
   // Tools left, hint right-aligned on the same row
   const toolsLeft  = toolParts.length > 0 ? chalk.dim('  ' + toolParts.join('  ·  ')) : ''
-  const hintRight  = chalk.dim('/luck to begin  ·  /luck help')
+  const hintRight  = chalk.dim('/help')
   const footerFill = RIGHT_INNER - visLen(toolsLeft) - visLen(hintRight)
   const footerRow  = toolsLeft + ' '.repeat(Math.max(1, footerFill)) + hintRight
 

@@ -54,7 +54,7 @@ function exitIfManagedResourcesAreNewer(currentAgentDir: string): void {
   process.stderr.write(
     `[luck] ${chalk.yellow('Version mismatch detected')}\n` +
     `[luck] Synced resources are from ${chalk.bold(`v${managedVersion}`)}, but this \`luck\` binary is ${chalk.dim(`v${currentVersion}`)}.\n` +
-    `[luck] Run ${chalk.bold('npm install -g gsd-pi@latest')} or ${chalk.bold('luck update')}, then try again.\n`,
+    `[luck] Run ${chalk.bold('luck update')}, then try again.\n`,
   )
   process.exit(1)
 }
@@ -247,9 +247,9 @@ if (!isPrintMode && shouldRunOnboarding(authStorage, settingsManager.getDefaultP
 }
 
 // Update check — non-blocking banner check; interactive prompt deferred to avoid
-// blocking startup. The passive checkForUpdates() prints a banner if an update is
-// available (using cached data or a background fetch) without blocking the TUI.
-if (!isPrintMode) {
+// blocking startup. Allow local dev wrappers to suppress this so a source checkout
+// can run without constantly advertising the published npm version.
+if (!isPrintMode && !['1', 'true', 'yes'].includes((process.env.LUCK_SKIP_UPDATE_CHECK || '').toLowerCase())) {
   checkForUpdates().catch(() => {})
 }
 
@@ -579,7 +579,12 @@ if (!process.stdin.isTTY) {
   })
 }
 
-const interactiveMode = new InteractiveMode(session)
+const interactiveMode = new InteractiveMode(session, {
+  runConfigWizard: async () => {
+    await runOnboarding(authStorage)
+    loadStoredEnvKeys(authStorage)
+  },
+})
 markStartup('InteractiveMode')
 printStartupTimings()
 await interactiveMode.run()

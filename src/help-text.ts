@@ -15,8 +15,6 @@ const SUBCOMMAND_HELP: Record<string, string> = {
     'Usage: luck update',
     '',
     'Update LUCK to the latest version.',
-    '',
-    'Equivalent to: npm install -g gsd-pi@latest',
   ].join('\n'),
 
   sessions: [

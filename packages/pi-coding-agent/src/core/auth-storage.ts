@@ -605,13 +605,47 @@ export class AuthStorage {
 			usedIndex = ((current - 1) % credentials.length + credentials.length) % credentials.length;
 		}
 
-		// Set backoff for this credential
 		let providerBackoff = this.credentialBackoff.get(provider);
 		if (!providerBackoff) {
 			providerBackoff = new Map();
 			this.credentialBackoff.set(provider, providerBackoff);
 		}
-		providerBackoff.set(usedIndex, Date.now() + backoffMs);
+
+		// Persistently move the exhausted credential to the end of the list so
+		// future requests/processes prefer accounts that are still working.
+		if (credentials.length > 1) {
+			const reordered = [...credentials];
+			const [usedCredential] = reordered.splice(usedIndex, 1);
+			reordered.push(usedCredential);
+			this.data[provider] = reordered;
+			this.persistProviderChange(provider, reordered);
+			credentials.splice(0, credentials.length, ...reordered);
+
+			// Existing backoff entries are indexed by credential position, so remap
+			// them to the reordered indices before recording the new backoff.
+			const remappedBackoff = new Map<number, number>();
+			for (const [index, expiresAt] of providerBackoff.entries()) {
+				let nextIndex = index;
+				if (index === usedIndex) {
+					nextIndex = credentials.length - 1;
+				} else if (index > usedIndex) {
+					nextIndex = index - 1;
+				}
+				remappedBackoff.set(nextIndex, expiresAt);
+			}
+			providerBackoff = remappedBackoff;
+			this.credentialBackoff.set(provider, providerBackoff);
+
+			// For round-robin selection, point the next lookup at the credential
+			// that shifted into the exhausted credential's old slot.
+			if (!sessionId) {
+				this.providerRoundRobinIndex.set(provider, usedIndex % credentials.length);
+			}
+		}
+
+		// Set backoff for the exhausted credential at its new index.
+		const backedOffIndex = credentials.length > 1 ? credentials.length - 1 : usedIndex;
+		providerBackoff.set(backedOffIndex, Date.now() + backoffMs);
 
 		// Check if any credential is still available
 		for (let i = 0; i < credentials.length; i++) {

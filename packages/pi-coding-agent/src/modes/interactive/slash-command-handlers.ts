@@ -96,6 +96,7 @@ export interface SlashCommandContext {
 	showTreeSelector(): void;
 	showProviderManager(): void;
 	showOAuthSelector(mode: "login" | "logout"): Promise<void>;
+	runConfigWizard?(): Promise<void>;
 	showSessionSelector(): void;
 	showCommandPalette(): void;
 	handleClearCommand(): Promise<void>;
@@ -172,6 +173,14 @@ export async function dispatchSlashCommand(
 	}
 	if (text === "/provider") {
 		ctx.showProviderManager();
+		return true;
+	}
+	if (text === "/config") {
+		if (!ctx.runConfigWizard) {
+			ctx.showWarning("Configuration wizard is not available in this build.");
+			return true;
+		}
+		await ctx.runConfigWizard();
 		return true;
 	}
 	if (text === "/login") {

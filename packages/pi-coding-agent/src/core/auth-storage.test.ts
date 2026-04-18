@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { AuthStorage } from "./auth-storage.js";
+import { AuthStorage, InMemoryAuthStorageBackend } from "./auth-storage.js";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -222,6 +222,43 @@ describe("AuthStorage — rate-limit backoff", () => {
 		const next = await storage.getApiKey("anthropic", sessionId);
 		assert.ok(next);
 		assert.notEqual(next, chosen);
+	});
+
+	it("persists exhausted credential to the end of the stored list", async () => {
+		const backend = new InMemoryAuthStorageBackend();
+		backend.withLock(() => ({
+			result: undefined,
+			next: JSON.stringify({
+				anthropic: [makeKey("sk-1"), makeKey("sk-2"), makeKey("sk-3")],
+			}),
+		}));
+		const storage = AuthStorage.fromStorage(backend);
+
+		assert.equal(await storage.getApiKey("anthropic"), "sk-1");
+		assert.equal(storage.markUsageLimitReached("anthropic"), true);
+
+		const creds = storage.getCredentialsForProvider("anthropic");
+		assert.deepEqual(
+			creds.map((c) => (c.type === "api_key" ? c.key : null)),
+			["sk-2", "sk-3", "sk-1"],
+		);
+	});
+
+	it("a new storage instance prefers the next working credential after reload", async () => {
+		const backend = new InMemoryAuthStorageBackend();
+		backend.withLock(() => ({
+			result: undefined,
+			next: JSON.stringify({
+				anthropic: [makeKey("sk-1"), makeKey("sk-2")],
+			}),
+		}));
+		const firstStorage = AuthStorage.fromStorage(backend);
+
+		assert.equal(await firstStorage.getApiKey("anthropic"), "sk-1");
+		assert.equal(firstStorage.markUsageLimitReached("anthropic"), true);
+
+		const reloadedStorage = AuthStorage.fromStorage(backend);
+		assert.equal(await reloadedStorage.getApiKey("anthropic"), "sk-2");
 	});
 });
 

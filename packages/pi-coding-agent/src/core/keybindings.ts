@@ -57,7 +57,7 @@ const DEFAULT_APP_KEYBINDINGS: Record<AppAction, KeyId | KeyId[]> = {
 	clear: "ctrl+c",
 	exit: "ctrl+d",
 	suspend: "ctrl+z",
-	cycleThinkingLevel: [],
+	cycleThinkingLevel: "shift+tab",
 	cycleModelForward: "ctrl+p",
 	cycleModelBackward: "shift+ctrl+p",
 	selectModel: "ctrl+l",
@@ -72,7 +72,7 @@ const DEFAULT_APP_KEYBINDINGS: Record<AppAction, KeyId | KeyId[]> = {
 	tree: [],
 	fork: [],
 	resume: [],
-	cyclePermissionMode: "shift+tab",
+	cyclePermissionMode: "shift+ctrl+k",
 	commandPalette: "ctrl+k",
 };
 

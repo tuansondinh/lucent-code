@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
 const srcLoaderPath = resolve(root, 'src', 'loader.ts')
-const resolveTsPath = resolve(root, 'src', 'resources', 'extensions', 'gsd', 'tests', 'resolve-ts.mjs')
+const resolveTsPath = resolve(root, 'src', 'tests', 'resolve-ts.mjs')
 
 const child = spawn(
   process.execPath,

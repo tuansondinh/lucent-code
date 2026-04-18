@@ -155,6 +155,8 @@ export interface InteractiveModeOptions {
 	submitPromptsDirectly?: boolean;
 	/** Control what happens when the user requests shutdown from the TUI. */
 	shutdownBehavior?: "exit_process" | "stop_ui" | "ignore";
+	/** App-specific interactive configuration flow exposed via /config. */
+	runConfigWizard?: () => Promise<void>;
 }
 
 export class InteractiveMode {
@@ -1982,6 +1984,7 @@ export class InteractiveMode {
 			showTreeSelector: () => this.showTreeSelector(),
 			showProviderManager: () => this.showProviderManager(),
 			showOAuthSelector: (mode) => this.showOAuthSelector(mode),
+			runConfigWizard: () => this.runConfigWizard(),
 			showSessionSelector: () => this.showSessionSelector(),
 			showCommandPalette: () => this.showCommandPalette(),
 			handleClearCommand: () => this.handleClearCommand(),
@@ -2517,6 +2520,29 @@ export class InteractiveMode {
 			// Restart TUI
 			this.ui.start();
 			// Force full re-render since external editor uses alternate screen
+			this.ui.requestRender(true);
+		}
+	}
+
+	private async runConfigWizard(): Promise<void> {
+		if (!this.options.runConfigWizard) {
+			this.showWarning("Configuration wizard is not available in this build.");
+			return;
+		}
+
+		this.ui.stop();
+		try {
+			await this.options.runConfigWizard();
+		} finally {
+			process.stdin.removeAllListeners("data");
+			process.stdin.removeAllListeners("keypress");
+			if (process.stdin.setRawMode) process.stdin.setRawMode(false);
+			process.stdin.pause();
+
+			this.ui.start();
+			this.updateTerminalTitle();
+			await this.updateAvailableProviderCount();
+			this.footer.invalidate();
 			this.ui.requestRender(true);
 		}
 	}
